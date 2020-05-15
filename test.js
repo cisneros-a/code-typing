@@ -112,28 +112,25 @@ let arrOfClosings = [
 let nodesPerLine = [32, 22, 44, 31, 41, 18, 40, 31, 11, 7, 4];
 
 function determineLine(num) {
-  // console.log("function for line", num);
   let totalNodes = 0;
   let nodesBeforeCurrentLine = 0;
   for (let i = 0; i < nodesPerLine.length; i++) {
     totalNodes += nodesPerLine[i] + 1;
     if (nodesBeforeCurrentLine <= num && num <= totalNodes) {
-      // if (nodesBeforeCurrentLine < num + extraNodesPerLine[i] && 1) {
       return {
         line: i,
         node: num - nodesBeforeCurrentLine + (i + 1) * -1,
       };
     }
-
     nodesBeforeCurrentLine += nodesPerLine[i];
   }
   return totalNodes;
 }
 
-for (let i = 0; i < arrOfClosings.length; i++) {
-  // console.log(i);
-  console.log(determineLine(arrOfClosings[i]));
-}
+// for (let i = 0; i < arrOfClosings.length; i++) {
+// console.log(i);
+console.log(determineLine(290));
+// }
 
 // console.log(nodeLines);
 // determineLine(177)

@@ -117,7 +117,7 @@
   }
 
   function highlightFirstLetter() {
-    firstLetter = lettersContainer.childNodes[10].childNodes[2];
+    firstLetter = lettersContainer.childNodes[0].childNodes[2];
     firstLetter.classList.add("active");
   }
 
@@ -165,6 +165,7 @@
   }
 
   function highlightNextLetter(keyPress) {
+    console.log("highlightNextLetterTriggered");
     state.currentCharIndex++;
     const line = lettersContainer.childNodes[state.currentLine];
     const nextLetter = line.childNodes[state.currentCharIndex + 1];
@@ -173,7 +174,7 @@
     currentLetter.classList.remove("active");
 
     if (state.currentCharIndex > state.lineChars[state.currentLine] - 1) {
-      console.log("triggered", state.currentCharIndex);
+      // console.log("triggered", state.currentCharIndex);
       state.currentCharIndex = 2;
       state.currentLine++;
 
@@ -181,8 +182,38 @@
     } else {
       nextLetter.classList.add("active");
     }
+    if (state.indexesToSkip.length > 0) {
+      checkForSymbolToSkip();
+    }
     testDetermineIfKeysMatch(keyPress, currentLetter);
   }
+
+  function checkForSymbolToSkip() {
+    const line = lettersContainer.childNodes[state.currentLine];
+    const currentLetter = line.childNodes[state.currentCharIndex];
+    // console.log("checkingForSymbolToSkip");
+    console.log(
+      `looking for line ${state.currentLine} index ${
+        state.currentCharIndex
+      } to match line ${state.indexesToSkip[0].line} index ${
+        state.indexesToSkip[0].node - 1
+      }`
+    );
+    if (
+      state.currentCharIndex === state.indexesToSkip[0].node - 1 &&
+      state.currentLine === state.indexesToSkip[0].line
+    ) {
+      console.log("found symbol");
+
+      currentLetter.classList.remove("active");
+      state.indexesToSkip = state.indexesToSkip.splice(1);
+      highlightNextLetter();
+    }
+    console.log(state.indexesToSkip);
+    // line.childNodes[state.currentCharIndex + 1].classList.remove("active");
+  }
+
+  // function()
 
   function testDetermineIfKeysMatch(keyPress, currentLetter) {
     if (currentLetter.innerText === keyPress) {
@@ -246,17 +277,41 @@
     let allNodes = lettersContainer.getElementsByTagName("*");
     // allNodes[256].classList.add("correct");
     // let currentNode = determineCorrectNode(state.pairs[state.currentSymbol][1]);
-    let arr = [];
-    console.log("state.pairs", state.pairs);
-    for (let i = 0; i < state.pairs.length; i++) {
-      console.log("pairs[i]", state.pairs[i][1]);
-      // determineCorrectNode(state.pairs[i][1]);
-      arr.push(determineCorrectNode(state.pairs[i][1]));
-    }
-    console.log(arr);
 
+    state.indexesToSkip.push(
+      findNodeLineAndIndex(state.pairs[state.currentSymbol][1])
+    );
+    state.indexesToSkip = sortOurObject(state.indexesToSkip);
     allNodes[state.pairs[state.currentSymbol][1]].classList.add("correct");
-    // state.indexesToSkip.push(pairSymbol);
+    checkForSymbolToSkip();
+  }
+
+  function sortOurObject(obj) {
+    sortedObj = obj.sort((a, b) => {
+      if (a.line === b.line) {
+        return a.node - b.node;
+      }
+      return a.line - b.line;
+    });
+    return sortedObj;
+  }
+
+  function findNodeLineAndIndex(num) {
+    let lines = lettersContainer.childNodes;
+    // let charsPerLine = lines.childNodes;
+    let totalNodes = 0;
+    let nodesBeforeCurrentLine = 0;
+    for (let i = 0; i < lines.length; i++) {
+      totalNodes += lines[i].childNodes.length + 1;
+      if (nodesBeforeCurrentLine <= num && num <= totalNodes) {
+        return {
+          line: i,
+          node: num - nodesBeforeCurrentLine + (i + 1) * -1,
+        };
+      }
+      nodesBeforeCurrentLine += lines[i].childNodes.length;
+    }
+    return totalNodes;
   }
 
   function determineCorrectNode(num) {
