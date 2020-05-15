@@ -117,7 +117,7 @@
   }
 
   function highlightFirstLetter() {
-    firstLetter = lettersContainer.childNodes[0].childNodes[2];
+    firstLetter = lettersContainer.childNodes[10].childNodes[2];
     firstLetter.classList.add("active");
   }
 
@@ -244,11 +244,37 @@
 
   function lightUpPair() {
     let allNodes = lettersContainer.getElementsByTagName("*");
-    let currentNode = determineCorrectNode(state.pairs[state.currentSymbol][0]);
-    // const pairSymbol = state.pairs[state.currentCharIndex];
+    // allNodes[256].classList.add("correct");
+    // let currentNode = determineCorrectNode(state.pairs[state.currentSymbol][1]);
+    let arr = [];
+    console.log("state.pairs", state.pairs);
+    for (let i = 0; i < state.pairs.length; i++) {
+      console.log("pairs[i]", state.pairs[i][1]);
+      // determineCorrectNode(state.pairs[i][1]);
+      arr.push(determineCorrectNode(state.pairs[i][1]));
+    }
+    console.log(arr);
 
     allNodes[state.pairs[state.currentSymbol][1]].classList.add("correct");
     // state.indexesToSkip.push(pairSymbol);
+  }
+
+  function determineCorrectNode(num) {
+    const lines = lettersContainer.childNodes;
+    let charsPerLineArray = [];
+    for (let i = 0; i < lines.length; i++) {
+      charsPerLineArray.push(lines[i].childNodes.length);
+    }
+
+    let nodesToAdd = findNodeCountToAdd(charsPerLineArray);
+
+    let totalNodes = 0;
+    for (let i = 0; i < charsPerLineArray.length; i++) {
+      totalNodes += charsPerLineArray[i] + 1;
+      if (totalNodes >= num + nodesToAdd[i]) {
+        return num + nodesToAdd[i];
+      }
+    }
   }
 
   function findMatchingPairs(testString) {
@@ -265,7 +291,7 @@
     for (let charIndex in openings) {
       findCharacterMatch(parseInt(charIndex), openings[charIndex], testString);
     }
-    console.log(state.pairs);
+    // console.log(state.pairs);
   }
 
   findMatchingPairs(string1);
@@ -302,12 +328,20 @@
     }
   }
 
-  function intervals(lineLengths) {
+  function findNodeCountToAdd(lineCount) {
     let maths = [-1];
-    for (let i = 1; i < lineLengths.length; i++) {
+    for (let i = 1; i < lineCount; i++) {
       maths.push(maths[i - 1] + 2);
     }
     return maths;
+  }
+
+  function intervals(lineLengths) {
+    let maths = [2];
+    for (let i = 1; i < lineLengths.length; i++) {
+      maths.push(maths[i - 1] - 1);
+    }
+    console.log(maths);
   }
 
   function determineCorrectNode(num) {
@@ -316,17 +350,17 @@
     for (let i = 0; i < lines.length; i++) {
       charsPerLineArray.push(lines[i].childNodes.length);
     }
+    // console.log("charPerLineArr", charsPerLineArray);
 
-    maths = intervals(charsPerLineArray);
+    let nodesToAddPerLine = findNodeCountToAdd(charsPerLineArray.length);
 
     let totalNodes = 0;
     for (let i = 0; i < charsPerLineArray.length; i++) {
       totalNodes += charsPerLineArray[i] + 1;
-      if (totalNodes >= num + maths[i]) {
-        return num + maths[i];
+      if (totalNodes >= num + nodesToAddPerLine[i]) {
+        return num + nodesToAddPerLine[i];
       }
     }
-    // return num + maths[i];
   }
 
   function skipSymbols() {

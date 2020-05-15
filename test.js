@@ -54,8 +54,6 @@
 
 // console.log(matchingPairs);
 
-let lineLengths = [32, 22, 44, 31, 41, 18, 40, 31, 11, 7, 4];
-
 let closings = [
   { 0: 28 },
   { 1: 53 },
@@ -70,24 +68,71 @@ let closings = [
   { 10: 271 },
 ];
 
-let extraNodesPerLine = [-1, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
 let nodeLines = {};
 
+//match is 17-
+
+arrOfOpenings = [
+  17,
+  33,
+  52,
+  64,
+  97,
+  110,
+  117,
+  121,
+  127,
+  148,
+  155,
+  159,
+  184,
+  220,
+  243,
+];
+let arrOfClosings = [
+  27,
+  54,
+  98,
+  128,
+  129,
+  130,
+  168,
+  169,
+  173,
+  186,
+  233,
+  261,
+  278,
+  286,
+  290,
+];
+
+// let extraNodesPerLine = [-1, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+// let nodesToRemovePerLine = [2, 1, 0, -1, -2, -3, -4, -5];
+let nodesPerLine = [32, 22, 44, 31, 41, 18, 40, 31, 11, 7, 4];
+
 function determineLine(num) {
+  // console.log("function for line", num);
   let totalNodes = 0;
-  for (let i = 0; i < lineLengths.length; i++) {
-    totalNodes += lineLengths[i] + 1;
-    if (totalNodes >= num + maths[i]) {
-      return num + maths[i];
+  let nodesBeforeCurrentLine = 0;
+  for (let i = 0; i < nodesPerLine.length; i++) {
+    totalNodes += nodesPerLine[i] + 1;
+    if (nodesBeforeCurrentLine <= num && num <= totalNodes) {
+      // if (nodesBeforeCurrentLine < num + extraNodesPerLine[i] && 1) {
+      return {
+        line: i,
+        node: num - nodesBeforeCurrentLine + (i + 1) * -1,
+      };
     }
+
+    nodesBeforeCurrentLine += nodesPerLine[i];
   }
   return totalNodes;
 }
 
-arr = [17, 33, 52, 64, 97, 110, 117, 121, 127, 148, 155, 159, 184, 220, 243];
-
-for (let i = 0; i < arr.length; i++) {
-  console.log(determineLine(arr[i]));
+for (let i = 0; i < arrOfClosings.length; i++) {
+  // console.log(i);
+  console.log(determineLine(arrOfClosings[i]));
 }
 
 // console.log(nodeLines);
