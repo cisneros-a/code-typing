@@ -3,57 +3,6 @@
   const audio = document.querySelector(`audio[data-key="01"]`);
   const wordDiv = document.querySelector(".feedback");
 
-  let state = {
-    currentCharIndex: 1,
-    currentLine: 0,
-    lineChars: [],
-    pairs: [],
-    indexesToSkip: [],
-    currentSymbol: 0,
-    string: `
-    let twoSum = (arr, total) => {
-      let numObj = {};
-      for (let i = 0; i < arr.length; i++) {
-          if (numObj[arr[i]]) {
-              return [numObj[arr[i]], i];
-          } else {
-              let diff = total - arr[i];
-              numObj[diff] = i;
-          }
-      }
-  };
-    `,
-  };
-
-  function fetchFormattedCode() {
-    fetch("http://localhost:5000/codeFormatter", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        snippet: `
-        let twoSum = (arr, total) => {
-          let numObj = {};
-          for (let i = 0; i < arr.length; i++) {
-              if (numObj[arr[i]]) {
-                  return [numObj[arr[i]], i];
-              } else {
-                  let diff = total - arr[i];
-                  numObj[diff] = i;
-              }
-          }
-      };
-      `,
-      }),
-    })
-      .then((res) => res.text())
-      .then((data) => seperateCodeIntoLines(data));
-  }
-
-  // fetchFormattedCode();
-
   const string1 = `
   let twoSum2 = (arr, total) => {
     let numObj = {};
@@ -68,50 +17,96 @@
 };
   `;
 
-  const arr = [
-    "1",
-    "let twoSum = (arr, total) => {",
-    "2",
-    "    let numObj = {};",
-    "3",
-    "    for (let i = 0; i < arr.length; i++) {",
-    "4",
-    "        if (numObj[arr[i]]) {",
-    "5",
-    "            return [numObj[arr[i]], i];",
-    "6",
-    "        } else {",
-    "7",
-    "            let diff = total - arr[i];",
-    "8",
-    "            numObj[diff] = i;",
-    "9",
-    "        }",
-    "10",
-    "    }",
-    "11",
-    "};",
-  ];
+  let state = {
+    currentCharIndex: 1,
+    currentLine: 0,
+    lineChars: [],
+    pairs: [],
+    indexesToSkip: [],
+    currentSymbol: 0,
+    string: "",
+  };
+
+  function fetchFormattedCode() {
+    fetch("http://localhost:3000/codeFormatter", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        snippet: `
+        function determineCorrectNode(num) {
+          const lines = lettersContainer.childNodes;let charsPerLineArray = [];for (let i = 0; i < lines.length; i++)
+           {charsPerLineArray.push(lines[i].childNodes.length);
+          }let nodesToAdd = findNodeCountToAdd(charsPerLineArray); let totalNodes = 0;
+          for (let i = 0; i < charsPerLineArray.length; i++) {
+       totalNodes += charsPerLineArray[i] + 1;
+    if (totalNodes >= num + nodesToAdd[i]) {
+        return num + nodesToAdd[i]; }}
+        }
+      `,
+      }),
+    })
+      .then((res) => res.text())
+      .then((data) => seperateCodeIntoLines(data));
+  }
+
+  fetchFormattedCode();
+
+  // const arr = [
+  //   "1",
+  //   "let twoSum = (arr, total) => {",
+  //   "2",
+  //   "    let numObj = {};",
+  //   "3",
+  //   "    for (let i = 0; i < arr.length; i++) {",
+  //   "4",
+  //   "        if (numObj[arr[i]]) {",
+  //   "5",
+  //   "            return [numObj[arr[i]], i];",
+  //   "6",
+  //   "        } else {",
+  //   "7",
+  //   "            let diff = total - arr[i];",
+  //   "8",
+  //   "            numObj[diff] = i;",
+  //   "9",
+  //   "        }",
+  //   "10",
+  //   "    }",
+  //   "11",
+  //   "};",
+  // ];
 
   const mergeIndexes = (arr) => {
     let completedLines = [];
     for (let i = 0; i < arr.length - 1; i += 2) {
       completedLines.push(arr[i] + arr[i + 1]);
     }
-    // console.log(completedLines);
     displayTypeableCode(completedLines);
   };
 
   function seperateCodeIntoLines(code) {
+    // console.log(code);
     splitCode = code.split(/\n/);
+    removeLineNumbers(splitCode);
     mergeIndexes(splitCode);
   }
-  // seperateCodeIntoLines(string1);
 
-  mergeIndexes(arr);
+  function removeLineNumbers(code) {
+    let justWords = [];
+    for (let i = 1; i < code.length; i += 2) {
+      justWords.push(code[i]);
+    }
+    console.log(justWords.join(""));
+    state.string = justWords.join("");
+  }
 
   function displayTypeableCode(lineArray) {
     createLineDivs(lineArray);
+    findMatchingPairs(state.string);
+
     addKeyListener();
     highlightFirstLetter();
   }
@@ -119,6 +114,7 @@
   function highlightFirstLetter() {
     firstLetter = lettersContainer.childNodes[0].childNodes[2];
     firstLetter.classList.add("active");
+    // let allNodes = lettersContainer.getElementsByTagName("*");
   }
 
   function createLineDivs(array) {
@@ -155,6 +151,8 @@
   }
 
   function addKeyListener() {
+    console.log(state);
+
     document.addEventListener("keydown", (e) => {
       // console.log(e);
       if (e.key !== "Shift") {
@@ -191,29 +189,17 @@
   function checkForSymbolToSkip() {
     const line = lettersContainer.childNodes[state.currentLine];
     const currentLetter = line.childNodes[state.currentCharIndex];
-    // console.log("checkingForSymbolToSkip");
-    console.log(
-      `looking for line ${state.currentLine} index ${
-        state.currentCharIndex
-      } to match line ${state.indexesToSkip[0].line} index ${
-        state.indexesToSkip[0].node - 1
-      }`
-    );
+
     if (
       state.currentCharIndex === state.indexesToSkip[0].node - 1 &&
       state.currentLine === state.indexesToSkip[0].line
     ) {
-      console.log("found symbol");
-
+      console.log(state.indexesToSkip);
       currentLetter.classList.remove("active");
       state.indexesToSkip = state.indexesToSkip.splice(1);
       highlightNextLetter();
     }
-    console.log(state.indexesToSkip);
-    // line.childNodes[state.currentCharIndex + 1].classList.remove("active");
   }
-
-  // function()
 
   function testDetermineIfKeysMatch(keyPress, currentLetter) {
     if (currentLetter.innerText === keyPress) {
@@ -277,11 +263,14 @@
     let allNodes = lettersContainer.getElementsByTagName("*");
     // allNodes[256].classList.add("correct");
     // let currentNode = determineCorrectNode(state.pairs[state.currentSymbol][1]);
-
+    console.log(state.pairs);
     state.indexesToSkip.push(
       findNodeLineAndIndex(state.pairs[state.currentSymbol][1])
     );
     state.indexesToSkip = sortOurObject(state.indexesToSkip);
+
+    console.log(state.indexesToSkip);
+    // console.log(allNodes[state.pairs[state.currentSymbol][1]]);
     allNodes[state.pairs[state.currentSymbol][1]].classList.add("correct");
     checkForSymbolToSkip();
   }
@@ -314,25 +303,8 @@
     return totalNodes;
   }
 
-  function determineCorrectNode(num) {
-    const lines = lettersContainer.childNodes;
-    let charsPerLineArray = [];
-    for (let i = 0; i < lines.length; i++) {
-      charsPerLineArray.push(lines[i].childNodes.length);
-    }
-
-    let nodesToAdd = findNodeCountToAdd(charsPerLineArray);
-
-    let totalNodes = 0;
-    for (let i = 0; i < charsPerLineArray.length; i++) {
-      totalNodes += charsPerLineArray[i] + 1;
-      if (totalNodes >= num + nodesToAdd[i]) {
-        return num + nodesToAdd[i];
-      }
-    }
-  }
-
   function findMatchingPairs(testString) {
+    console.log("findMatchingPairs");
     let openings = {};
     for (let i = 0; i < testString.length; i++) {
       if (
@@ -343,20 +315,14 @@
         openings[i] = testString[i];
       }
     }
+    console.log("openings", openings);
     for (let charIndex in openings) {
       findCharacterMatch(parseInt(charIndex), openings[charIndex], testString);
     }
     // console.log(state.pairs);
   }
 
-  findMatchingPairs(string1);
-
   function findCharacterMatch(index, symbol, testString) {
-    const lines = lettersContainer.childNodes;
-    let lineLengths = [];
-    for (let i = 0; i < lines.length; i++) {
-      lineLengths.push(lines[i].childNodes.length);
-    }
     let allNodes = lettersContainer.getElementsByTagName("*");
 
     // let maths = intervals(lineLengths);
@@ -368,6 +334,11 @@
     let newOpenings = 0;
     for (let i = index + 1; i < testString.length; i++) {
       if (newOpenings === 0 && testString[i] === pairsObj[symbol]) {
+        console.log(
+          "nums going into determine correct node function",
+          index,
+          i
+        );
         state.pairs.push([
           determineCorrectNode(index),
           determineCorrectNode(i),
@@ -384,20 +355,20 @@
   }
 
   function findNodeCountToAdd(lineCount) {
-    let maths = [-1];
+    let maths = [3];
     for (let i = 1; i < lineCount; i++) {
-      maths.push(maths[i - 1] + 2);
+      maths.push(i * 3 + 3);
     }
     return maths;
   }
 
-  function intervals(lineLengths) {
-    let maths = [2];
-    for (let i = 1; i < lineLengths.length; i++) {
-      maths.push(maths[i - 1] - 1);
-    }
-    console.log(maths);
-  }
+  // function intervals(lineLengths) {
+  //   let maths = [2];
+  //   for (let i = 1; i < lineLengths.length; i++) {
+  //     maths.push(maths[i - 1] - 1);
+  //   }
+  //   console.log(maths);
+  // }
 
   function determineCorrectNode(num) {
     const lines = lettersContainer.childNodes;
@@ -408,27 +379,36 @@
     // console.log("charPerLineArr", charsPerLineArray);
 
     let nodesToAddPerLine = findNodeCountToAdd(charsPerLineArray.length);
-
     let totalNodes = 0;
     for (let i = 0; i < charsPerLineArray.length; i++) {
       totalNodes += charsPerLineArray[i] + 1;
-      if (totalNodes >= num + nodesToAddPerLine[i]) {
+      console.log(
+        "total nodes",
+        totalNodes,
+        "our num is",
+        num + nodesToAddPerLine[i]
+      );
+      if (totalNodes > num + nodesToAddPerLine[i]) {
         return num + nodesToAddPerLine[i];
       }
     }
   }
-
-  function skipSymbols() {
-    let moveForward = false;
-    while (!moveForward) {
-      if (!state.indexesToSkip.includes(state.currentCharIndex + 1)) {
-        moveForward = true;
-      } else {
-        state.currentCharIndex += 1;
-        state.indexesToSkip.pop();
-
-        highlightNextLetter();
-      }
-    }
-  }
 })();
+
+// function determineCorrectNode(num) {
+//   const lines = lettersContainer.childNodes;
+//   let charsPerLineArray = [];
+//   for (let i = 0; i < lines.length; i++) {
+//     charsPerLineArray.push(lines[i].childNodes.length);
+//   }
+
+//   let nodesToAdd = findNodeCountToAdd(charsPerLineArray);
+
+//   let totalNodes = 0;
+//   for (let i = 0; i < charsPerLineArray.length; i++) {
+//     totalNodes += charsPerLineArray[i] + 1;
+//     if (totalNodes >= num + nodesToAdd[i]) {
+//       return num + nodesToAdd[i];
+//     }
+//   }
+// }
