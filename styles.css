@@ -19,7 +19,7 @@ h2 {
 
 .line {
   display: grid;
-  grid-template-columns: repeat(60, 1fr);
+  grid-template-columns: repeat(70, 1fr);
 }
 .feedback {
   align-self: center;

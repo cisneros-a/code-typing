@@ -54,20 +54,6 @@
 
 // console.log(matchingPairs);
 
-let closings = [
-  { 0: 28 },
-  { 1: 53 },
-  { 2: 95 },
-  { 3: [123, 124, 125] },
-  { 4: [161, 162, 166] },
-  { 5: 177 },
-  { 6: 222 },
-  { 7: 248 },
-  { 8: 263 },
-  { 9: 269 },
-  { 10: 271 },
-];
-
 let nodeLines = {};
 
 //match is 17-
@@ -89,59 +75,179 @@ arrOfOpenings = [
   220,
   243,
 ];
-let arrOfClosings = [
-  27,
-  54,
-  98,
-  128,
-  129,
-  130,
-  168,
-  169,
-  173,
-  186,
-  233,
-  261,
-  278,
-  286,
-  290,
+
+newArrOfClosings = [
+  23,
+  49,
+  92,
+  121,
+  122,
+  123,
+  160,
+  161,
+  165,
+  175,
+  223,
+  250,
+  264,
+  271,
+  272,
 ];
 
 // let extraNodesPerLine = [-1, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
 // let nodesToRemovePerLine = [2, 1, 0, -1, -2, -3, -4, -5];
-let nodesPerLine = [32, 22, 44, 31, 41, 18, 40, 31, 11, 7, 4];
+// console.log(
+//   numss.sort((a, b) => {
+//     return a - b;
+//   })
+// );
 
-function determineLine(num) {
+// should be returning
+// { line: 0, node: 26 }
+// { line: 1, node: 20 }
+// { line: 2, node: 41 }
+// { line: 3, node: 26 }
+// { line: 3, node: 27 }
+// { line: 3, node: 28 }
+// { line: 4, node: 34 } //26
+// { line: 4, node: 35 } //27,
+// { line: 4, node: 39 } // 31
+// { line: 5, node: 10 } // 1
+// { line: 6, node: 38 }
+// { line: 7, node: 25 }
+// { line: 8, node: 10 }
+// { line: 9, node: 6 }
+// { line: 10, node: 2 }
+
+let lines = [32, 22, 44, 31, 41, 18, 40, 31, 11, 7, 4];
+
+function findNodeLineAndIndex(num) {
+  // let lines = lettersContainer.childNodes;
+  // let charsPerLine = lines.childNodes;
   let totalNodes = 0;
   let nodesBeforeCurrentLine = 0;
-  for (let i = 0; i < nodesPerLine.length; i++) {
-    totalNodes += nodesPerLine[i] + 1;
+  for (let i = 0; i < lines.length; i++) {
+    totalNodes += lines[i] + 1;
     if (nodesBeforeCurrentLine <= num && num <= totalNodes) {
       return {
         line: i,
         node: num - nodesBeforeCurrentLine + (i + 1) * -1,
       };
     }
-    nodesBeforeCurrentLine += nodesPerLine[i];
+    nodesBeforeCurrentLine += lines[i];
   }
+  console.log(totalNodes);
   return totalNodes;
 }
 
-// for (let i = 0; i < arrOfClosings.length; i++) {
-// console.log(i);
-console.log(determineLine(290));
-// }
+// console.log(findNodeLineAndIndex(290));
 
-// console.log(nodeLines);
-// determineLine(177)
-// determineLine(222)
-// determineLine(248)
+function findNodeCountToAdd(lineCount) {
+  let maths = [];
+  for (let i = 0; i < lineCount; i++) {
+    maths.push(maths[i - 1] + 2);
+  }
+  return maths;
+}
 
-//=========================================
-//=========================================
-//=========================================
-//=========================================
-//=========================================
-//=========================================
+function determineCorrectNode(num) {
+  // console.log(num);
+  // const lines = lettersContainer.childNodes;
+  let charsPerLineArray = [32, 22, 44, 31, 41, 18, 40, 31, 11, 7, 4];
+  // for (let i = 0; i < lines.length; i++) {
+  //   charsPerLineArray.push(lines[i].childNodes.length);
+  // }
+  // console.log("charPerLineArr", charsPerLineArray);
+  console.log("charsPerLine", charsPerLineArray);
+  let nodesToAddPerLine = findNodeCountToAdd(charsPerLineArray.length);
 
-// intervals();
+  let totalNodes = 0;
+  for (let i = 0; i < charsPerLineArray.length; i++) {
+    totalNodes += charsPerLineArray[i] + 1;
+    if (totalNodes >= num + nodesToAddPerLine[i]) {
+      return num + nodesToAddPerLine[i];
+    }
+  }
+}
+
+let newOpenings = [
+  24,
+  48,
+  89,
+
+  116,
+  117,
+  118,
+
+  153,
+  154,
+  158,
+
+  168,
+
+  212,
+
+  237,
+
+  251,
+  256,
+  257,
+];
+
+for (let i = 0; i < newOpenings.length; i++) {
+  console.log(determineCorrectNode(newOpenings[i]));
+}
+
+// what we should be returning
+let arrOfClosings = [
+  27, //0
+  // add 3
+
+  54, //1
+  // add 6
+
+  98, //2
+  // add 9
+
+  128, //3
+  129, //3
+  130, //3
+  // add 12
+
+  168, //4
+  169, //4
+  173, //4
+  //add 15
+
+  186, //5
+  // add 18
+
+  233, //6
+  //add 21
+
+  261, //7
+  //add 24
+
+  278, //8
+  // add 27
+
+  286, //9
+  //add 30
+
+  290, //10
+  //add 33
+];
+
+let closings = [
+  { 0: 28 },
+  { 1: 53 },
+  { 2: 95 },
+  { 3: [123, 124, 125] },
+  { 4: [161, 162, 166] },
+  { 5: 177 },
+  { 6: 222 },
+  { 7: 248 },
+  { 8: 263 },
+  { 9: 269 },
+  { 10: 271 },
+];
