@@ -28,7 +28,7 @@
   };
 
   function fetchFormattedCode() {
-    fetch("http://localhost:3000/codeFormatter", {
+    fetch("https://code-formatter.herokuapp.com/codeFormatter", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,15 +36,14 @@
       },
       body: JSON.stringify({
         snippet: `
-        function determineCorrectNode(num) {
-          const lines = lettersContainer.childNodes;let charsPerLineArray = [];for (let i = 0; i < lines.length; i++)
-           {charsPerLineArray.push(lines[i].childNodes.length);
-          }let nodesToAdd = findNodeCountToAdd(charsPerLineArray); let totalNodes = 0;
-          for (let i = 0; i < charsPerLineArray.length; i++) {
-       totalNodes += charsPerLineArray[i] + 1;
-    if (totalNodes >= num + nodesToAdd[i]) {
-        return num + nodesToAdd[i]; }}
-        }
+  function removeLineNumbers(code) {
+    let justWords = [];
+    for (let i = 1; i < code.length; i += 2) {
+      justWords.push(code[i]);
+    }
+    console.log(justWords.join(""));
+    state.string = justWords.join("");
+  }
       `,
       }),
     })
@@ -88,7 +87,6 @@
   };
 
   function seperateCodeIntoLines(code) {
-    // console.log(code);
     splitCode = code.split(/\n/);
     removeLineNumbers(splitCode);
     mergeIndexes(splitCode);
@@ -99,7 +97,6 @@
     for (let i = 1; i < code.length; i += 2) {
       justWords.push(code[i]);
     }
-    console.log(justWords.join(""));
     state.string = justWords.join("");
   }
 
@@ -151,10 +148,7 @@
   }
 
   function addKeyListener() {
-    console.log(state);
-
     document.addEventListener("keydown", (e) => {
-      // console.log(e);
       if (e.key !== "Shift") {
         highlightNextLetter(e.key);
         // audio.play();
@@ -163,7 +157,6 @@
   }
 
   function highlightNextLetter(keyPress) {
-    console.log("highlightNextLetterTriggered");
     state.currentCharIndex++;
     const line = lettersContainer.childNodes[state.currentLine];
     const nextLetter = line.childNodes[state.currentCharIndex + 1];
@@ -172,7 +165,6 @@
     currentLetter.classList.remove("active");
 
     if (state.currentCharIndex > state.lineChars[state.currentLine] - 1) {
-      // console.log("triggered", state.currentCharIndex);
       state.currentCharIndex = 2;
       state.currentLine++;
 
@@ -194,7 +186,6 @@
       state.currentCharIndex === state.indexesToSkip[0].node - 1 &&
       state.currentLine === state.indexesToSkip[0].line
     ) {
-      console.log(state.indexesToSkip);
       currentLetter.classList.remove("active");
       state.indexesToSkip = state.indexesToSkip.splice(1);
       highlightNextLetter();
@@ -237,8 +228,6 @@
     } else {
       state.currentCharIndex--;
 
-      console.log(currentLetter);
-
       currentLetter.classList.add("active");
     }
   }
@@ -248,7 +237,6 @@
   }
 
   function symbolCheck(currentLetter, response) {
-    // console.log(testString[state.currentCharIndex]);
     if (
       currentLetter.innerText === "(" ||
       currentLetter.innerText === "{" ||
@@ -261,16 +249,11 @@
 
   function lightUpPair() {
     let allNodes = lettersContainer.getElementsByTagName("*");
-    // allNodes[256].classList.add("correct");
-    // let currentNode = determineCorrectNode(state.pairs[state.currentSymbol][1]);
-    console.log(state.pairs);
     state.indexesToSkip.push(
       findNodeLineAndIndex(state.pairs[state.currentSymbol][1])
     );
     state.indexesToSkip = sortOurObject(state.indexesToSkip);
 
-    console.log(state.indexesToSkip);
-    // console.log(allNodes[state.pairs[state.currentSymbol][1]]);
     allNodes[state.pairs[state.currentSymbol][1]].classList.add("correct");
     checkForSymbolToSkip();
   }
@@ -304,7 +287,6 @@
   }
 
   function findMatchingPairs(testString) {
-    console.log("findMatchingPairs");
     let openings = {};
     for (let i = 0; i < testString.length; i++) {
       if (
@@ -315,11 +297,9 @@
         openings[i] = testString[i];
       }
     }
-    console.log("openings", openings);
     for (let charIndex in openings) {
       findCharacterMatch(parseInt(charIndex), openings[charIndex], testString);
     }
-    // console.log(state.pairs);
   }
 
   function findCharacterMatch(index, symbol, testString) {
@@ -334,11 +314,6 @@
     let newOpenings = 0;
     for (let i = index + 1; i < testString.length; i++) {
       if (newOpenings === 0 && testString[i] === pairsObj[symbol]) {
-        console.log(
-          "nums going into determine correct node function",
-          index,
-          i
-        );
         state.pairs.push([
           determineCorrectNode(index),
           determineCorrectNode(i),
@@ -362,21 +337,12 @@
     return maths;
   }
 
-  // function intervals(lineLengths) {
-  //   let maths = [2];
-  //   for (let i = 1; i < lineLengths.length; i++) {
-  //     maths.push(maths[i - 1] - 1);
-  //   }
-  //   console.log(maths);
-  // }
-
   function determineCorrectNode(num) {
     const lines = lettersContainer.childNodes;
     let charsPerLineArray = [];
     for (let i = 0; i < lines.length; i++) {
       charsPerLineArray.push(lines[i].childNodes.length);
     }
-    // console.log("charPerLineArr", charsPerLineArray);
 
     let nodesToAddPerLine = findNodeCountToAdd(charsPerLineArray.length);
     let totalNodes = 0;
@@ -394,21 +360,3 @@
     }
   }
 })();
-
-// function determineCorrectNode(num) {
-//   const lines = lettersContainer.childNodes;
-//   let charsPerLineArray = [];
-//   for (let i = 0; i < lines.length; i++) {
-//     charsPerLineArray.push(lines[i].childNodes.length);
-//   }
-
-//   let nodesToAdd = findNodeCountToAdd(charsPerLineArray);
-
-//   let totalNodes = 0;
-//   for (let i = 0; i < charsPerLineArray.length; i++) {
-//     totalNodes += charsPerLineArray[i] + 1;
-//     if (totalNodes >= num + nodesToAdd[i]) {
-//       return num + nodesToAdd[i];
-//     }
-//   }
-// }
