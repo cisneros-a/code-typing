@@ -19,7 +19,7 @@ import { functions } from "./domNodeFunctions.js";
   // LocalHostAPI "http://localhost:3000/codeFormatter"
 
   function fetchFormattedCode() {
-    fetch("http://localhost:3000/codeFormatter", {
+    fetch( "https://code-formatter.herokuapp.com/codeFormatter", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
