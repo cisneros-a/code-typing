@@ -13,6 +13,7 @@ import { functions } from "./domNodeFunctions.js";
     pairs: [],
     indexesToSkip: [],
     currentSymbol: 0,
+    string: "",
   };
 
   // Heroku API "https://code-formatter.herokuapp.com/codeFormatter"
@@ -26,14 +27,17 @@ import { functions } from "./domNodeFunctions.js";
         Accept: "application/json",
       },
       body: JSON.stringify({
-        snippet: `
-        var isAnagram = function(s, t){if (s.length !== t.length) {
-              return false} let sArray = s.split(''); let tArray = t.split('');
-          for (let i = 0; i < sArray.length; i++) {
-            if ( tArray.includes(sArray[i])) { var found = tArray.indexOf(sArray[i])
-              tArray.splice(found, 1) } else {
-              return false } } return true
-        }
+        snippet: `let getNthFib = n => {
+          let f = [0, 1]
+          if (n === 1) {
+              return 0
+          }
+          for ( let i = 1; i < n; i++) {
+              let fib = f[i] + f[i-1]
+              f.push(fib)
+          }
+          return f[n-1]
+      };
       `,
       }),
     })
@@ -45,6 +49,7 @@ import { functions } from "./domNodeFunctions.js";
     let preppedCode = prepCodeForDisplay(apiResponse);
     let codeSeperatedIntoLines = preppedCode[0];
     let codeString = preppedCode[1];
+    state.string = codeString;
 
     createLineDivs(codeSeperatedIntoLines);
     populatePairs(codeString);
@@ -111,6 +116,9 @@ import { functions } from "./domNodeFunctions.js";
     currentLetter.classList.remove("active");
 
     if (currentCharIndex > lineChars[currentLine] - 1) {
+      if (currentLine === lettersContainer.childNodes.length - 1) {
+        return reset();
+      }
       state.currentCharIndex = 2;
       state.currentLine++;
 
@@ -118,17 +126,31 @@ import { functions } from "./domNodeFunctions.js";
     } else {
       nextLetter.classList.add("active");
     }
-    if (indexesToSkip.length > 0) {
+    if (state.indexesToSkip.length > 0) {
+      console.log("highlight next letter");
       checkForSymbolToSkip();
     }
     determineIfKeysMatch(keyPress, currentLetter);
+  }
+
+  function reset() {
+    const allNodes = lettersContainer.getElementsByTagName("*");
+    for (let i = 0; i < allNodes.length; i++) {
+      allNodes[i].classList.remove("correct");
+      allNodes[i].classList.remove("incorrect");
+    }
+    state.currentSymbol = 0;
+    state.currentCharIndex = 1;
+    state.currentLine = 0;
+    highlightFirstLetter();
+    populatePairs(state.string);
   }
 
   function checkForSymbolToSkip() {
     const { currentCharIndex, currentLine, indexesToSkip } = state;
     const line = lettersContainer.childNodes[currentLine];
     const currentLetter = line.childNodes[currentCharIndex];
-
+    console.log(state.indexesToSkip);
     if (
       currentCharIndex === indexesToSkip[0].node - 1 &&
       currentLine === indexesToSkip[0].line
@@ -200,7 +222,8 @@ import { functions } from "./domNodeFunctions.js";
   }
 
   function lightUpPair() {
-    const { pairs, currentSymbol } = state;
+    console.log("lightUpPair");
+    const { pairs, currentSymbol, indexesToSkip } = state;
     let allNodes = lettersContainer.getElementsByTagName("*");
     state.indexesToSkip.push(
       functions.findNodesLineAndIndex(
@@ -210,7 +233,9 @@ import { functions } from "./domNodeFunctions.js";
     );
     state.indexesToSkip = functions.sortIndexesToSkip(state.indexesToSkip);
     allNodes[pairs[currentSymbol][1]].classList.add("correct");
-    checkForSymbolToSkip();
+    if (indexesToSkip.length > 0) {
+      checkForSymbolToSkip();
+    }
   }
 
   fetchFormattedCode();
