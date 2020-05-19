@@ -9,9 +9,23 @@
   </head>
   <body>
     <h1>Type, yo</h1>
+    <div class="buttons hidden">
+      <button class="btn-start demo">Demo Code</button>
+      <button class="btn-start your">Your Code</button>
+    </div>
+    <form id="code-form" class="hidden">
+      <textarea
+        name="code-input"
+        class="code-input"
+        style="width: 30vw; height: 30vh;"
+        placeholder="Enter the Javascript you want formatted here!"
+      ></textarea>
+      <button id="code-submit">Format your code!</button>
+    </form>
+    <main class="letters-container"></main>
 
-    <div class="letters-container"></div>
     <h2 class="feedback"></h2>
+
     <audio data-key="01" src="sounds/tink.wav"></audio>
     <script type="module" src="js/index.js"></script>
   </body>

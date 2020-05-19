@@ -2,26 +2,71 @@ body {
   background-color: #0c1616;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.buttons {
+  display: flex;
+  width: 30%;
+  justify-content: space-between;
+  align-content: center;
+}
+
+.btn-start {
+  background-color: #0c1616;
+  color: aliceblue;
+  height: 4rem;
+  width: 11rem;
+  outline: 4px solid;
+  font-family: monospace;
+  font-size: xx-large;
+}
+
+.btn-start:hover {
+  background-color: aliceblue;
+  color: #0c1616;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+form > button {
+  height: 2rem;
+  background-color: aliceblue;
+  font-size: medium;
+  font-weight: 500;
+  border-radius: 5px;
+  border: none;
+}
+
+textarea {
+  background-color: aliceblue;
+  border-radius: 5px;
+  font-size: large;
 }
 
 h1 {
-  align-self: center;
+  font-family: monospace;
   color: aliceblue;
   font-size: 56px;
 }
 
-h2 {
+/* h2 {
   text-align: center;
-}
+} */
 
 .line {
+  align-self: flex-start;
   display: grid;
   grid-template-columns: repeat(70, 1fr);
 }
 .feedback {
-  align-self: center;
-
   color: aliceblue;
 }
 
