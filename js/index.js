@@ -32,8 +32,10 @@ import { snippetArray } from "./codeSnippets.js";
   // Heroku API "https://code-formatter.herokuapp.com/codeFormatter"
   // LocalHostAPI "http://localhost:3000/codeFormatter"
 
-  function fetchFormattedCode(code) {
-    fetch("http://localhost:3000/codeFormatter", {
+
+  function fetchFormattedCode() {
+    fetch( "https://code-formatter.herokuapp.com/codeFormatter", {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
