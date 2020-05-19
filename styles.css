@@ -64,7 +64,7 @@ h1 {
 .line {
   align-self: flex-start;
   display: grid;
-  grid-template-columns: repeat(70, 1fr);
+  grid-template-columns: repeat(85, 1fr);
 }
 .feedback {
   color: aliceblue;
