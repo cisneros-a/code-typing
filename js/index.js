@@ -1,10 +1,12 @@
 import { prepCodeForDisplay } from "./prepCodeForDisplay.js";
 import { functions } from "./domNodeFunctions.js";
+import { snippetArray } from "./codeSnippets.js";
 
 (function run() {
   const lettersContainer = document.querySelector(".letters-container");
   const audio = document.querySelector(`audio[data-key="01"]`);
   const wordDiv = document.querySelector(".feedback");
+  const form = document.querySelector("#code-form");
 
   let state = {
     currentCharIndex: 1,
@@ -16,10 +18,21 @@ import { functions } from "./domNodeFunctions.js";
     string: "",
   };
 
+  function submitForm(e) {
+    let input = document.querySelector(".code-input");
+    e.preventDefault();
+    form.classList.add("hidden");
+    lettersContainer.innerHTML =
+      "<h2 style='color: aliceblue;' >Formatting your code....</h2>";
+    fetchFormattedCode(input.value);
+  }
+
+  form.addEventListener("submit", submitForm);
+
   // Heroku API "https://code-formatter.herokuapp.com/codeFormatter"
   // LocalHostAPI "http://localhost:3000/codeFormatter"
 
-  function fetchFormattedCode() {
+  function fetchFormattedCode(code) {
     fetch("http://localhost:3000/codeFormatter", {
       method: "POST",
       headers: {
@@ -27,25 +40,19 @@ import { functions } from "./domNodeFunctions.js";
         Accept: "application/json",
       },
       body: JSON.stringify({
-        snippet: `let getNthFib = n => {
-          let f = [0, 1]
-          if (n === 1) {
-              return 0
-          }
-          for ( let i = 1; i < n; i++) {
-              let fib = f[i] + f[i-1]
-              f.push(fib)
-          }
-          return f[n-1]
-      };
-      `,
+        snippet: code,
       }),
     })
       .then((res) => res.text())
       .then((data) => displayTypeableCode(data));
   }
 
+  displayTypeableCode(snippetArray[Math.floor(Math.random() * Math.floor(3))]);
+
   function displayTypeableCode(apiResponse) {
+    document.body.removeChild(form);
+    lettersContainer.innerHTML = "";
+    lettersContainer.innerText = "";
     let preppedCode = prepCodeForDisplay(apiResponse);
     let codeSeperatedIntoLines = preppedCode[0];
     let codeString = preppedCode[1];
@@ -102,6 +109,7 @@ import { functions } from "./domNodeFunctions.js";
   }
 
   function highlightFirstLetter() {
+    console.log(state.pairs);
     const firstLetter = lettersContainer.childNodes[0].childNodes[2];
     firstLetter.classList.add("active");
   }
@@ -127,7 +135,6 @@ import { functions } from "./domNodeFunctions.js";
       nextLetter.classList.add("active");
     }
     if (state.indexesToSkip.length > 0) {
-      console.log("highlight next letter");
       checkForSymbolToSkip();
     }
     determineIfKeysMatch(keyPress, currentLetter);
@@ -150,7 +157,6 @@ import { functions } from "./domNodeFunctions.js";
     const { currentCharIndex, currentLine, indexesToSkip } = state;
     const line = lettersContainer.childNodes[currentLine];
     const currentLetter = line.childNodes[currentCharIndex];
-    console.log(state.indexesToSkip);
     if (
       currentCharIndex === indexesToSkip[0].node - 1 &&
       currentLine === indexesToSkip[0].line
@@ -222,7 +228,6 @@ import { functions } from "./domNodeFunctions.js";
   }
 
   function lightUpPair() {
-    console.log("lightUpPair");
     const { pairs, currentSymbol, indexesToSkip } = state;
     let allNodes = lettersContainer.getElementsByTagName("*");
     state.indexesToSkip.push(
@@ -237,6 +242,4 @@ import { functions } from "./domNodeFunctions.js";
       checkForSymbolToSkip();
     }
   }
-
-  fetchFormattedCode();
 })();
