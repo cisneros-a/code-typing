@@ -7,6 +7,9 @@ import { snippetArray } from "./codeSnippets.js";
   const audio = document.querySelector(`audio[data-key="01"]`);
   const wordDiv = document.querySelector(".feedback");
   const form = document.querySelector("#code-form");
+  let buttonGroup = document.querySelector(".buttons");
+  const demoButton = document.querySelector(".demo");
+  const yourCodeButton = document.querySelector(".your");
 
   let state = {
     currentCharIndex: 1,
@@ -48,8 +51,6 @@ import { snippetArray } from "./codeSnippets.js";
       .then((res) => res.text())
       .then((data) => displayTypeableCode(data));
   }
-
-  displayTypeableCode(snippetArray[Math.floor(Math.random() * Math.floor(3))]);
 
   function displayTypeableCode(apiResponse) {
     document.body.removeChild(form);
@@ -244,4 +245,16 @@ import { snippetArray } from "./codeSnippets.js";
       checkForSymbolToSkip();
     }
   }
+
+  demoButton.addEventListener("click", () => {
+    buttonGroup.classList.add("hidden");
+    displayTypeableCode(
+      snippetArray[Math.floor(Math.random() * Math.floor(3))]
+    );
+  });
+
+  yourCodeButton.addEventListener("click", () => {
+    buttonGroup.classList.add("hidden");
+    form.classList.remove("hidden");
+  });
 })();
