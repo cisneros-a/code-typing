@@ -50,10 +50,12 @@ function run() {
   // Heroku API "https://code-formatter.herokuapp.com/codeFormatter"
   // LocalHostAPI "http://localhost:3000/codeFormatter"
 
-  function fetchFormattedCode(code) {
-    console.log(code);
 
-    fetch("http://localhost:3001/codeFormatter", {
+  function fetchFormattedCode(code) {
+
+    fetch( "https://code-formatter.herokuapp.com/codeFormatter", {
+
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
