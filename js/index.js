@@ -1,15 +1,20 @@
 import { prepCodeForDisplay } from "./prepCodeForDisplay.js";
 import { functions } from "./domNodeFunctions.js";
 import { snippetArray } from "./codeSnippets.js";
+const lettersContainer = document.querySelector(".letters-container");
+const homeButton = document.querySelector(".btn-home");
+const wordDiv = document.querySelector(".feedback");
+const form = document.querySelector("#code-form");
+const buttonGroup = document.querySelector(".buttons");
+const demoButton = document.querySelector(".demo");
+const yourCodeButton = document.querySelector(".your");
+const smallButtonGroup = document.querySelector(".buttons-small");
+const resetButton = document.querySelector(".btn-reset");
+const stats = document.querySelector(".stats");
+const lines = document.querySelectorAll(".line");
 
-(function run() {
-  const lettersContainer = document.querySelector(".letters-container");
+function run() {
   const audio = document.querySelector(`audio[data-key="01"]`);
-  const wordDiv = document.querySelector(".feedback");
-  const form = document.querySelector("#code-form");
-  let buttonGroup = document.querySelector(".buttons");
-  const demoButton = document.querySelector(".demo");
-  const yourCodeButton = document.querySelector(".your");
 
   let state = {
     currentCharIndex: 1,
@@ -19,9 +24,17 @@ import { snippetArray } from "./codeSnippets.js";
     indexesToSkip: [],
     currentSymbol: 0,
     string: "",
+    correctlyTyped: 0,
+    total: 0,
+    inSession: false,
   };
 
+  function removeFormListener() {
+    console.log("removing form listener");
+    form.removeEventListener("submit", submitForm);
+  }
   function submitForm(e) {
+    removeFormListener();
     let input = document.querySelector(".code-input");
     e.preventDefault();
     form.classList.add("hidden");
@@ -30,13 +43,17 @@ import { snippetArray } from "./codeSnippets.js";
     fetchFormattedCode(input.value);
   }
 
-  form.addEventListener("submit", submitForm);
+  // function removeForm() {
+  //   document.body.removeChild(form);
+  // }
 
   // Heroku API "https://code-formatter.herokuapp.com/codeFormatter"
   // LocalHostAPI "http://localhost:3000/codeFormatter"
 
   function fetchFormattedCode(code) {
-    fetch("http://localhost:3000/codeFormatter", {
+    console.log(code);
+
+    fetch("http://localhost:3001/codeFormatter", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,7 +68,7 @@ import { snippetArray } from "./codeSnippets.js";
   }
 
   function displayTypeableCode(apiResponse) {
-    document.body.removeChild(form);
+    state.inSession = true;
     lettersContainer.innerHTML = "";
     lettersContainer.innerText = "";
     let preppedCode = prepCodeForDisplay(apiResponse);
@@ -61,9 +78,11 @@ import { snippetArray } from "./codeSnippets.js";
 
     createLineDivs(codeSeperatedIntoLines);
     populatePairs(codeString);
+    softReset();
     addKeyListener();
     highlightFirstLetter();
   }
+
   function createLineDivs(array) {
     for (let i = 0; i < array.length; i++) {
       let lineDiv = document.createElement("div");
@@ -83,15 +102,18 @@ import { snippetArray } from "./codeSnippets.js";
   }
 
   function addKeyListener() {
-    document.addEventListener("keydown", (e) => {
-      if (e.key !== "Shift") {
-        // audio.play();
-        highlightNextLetter(e.key);
-      }
-    });
+    document.addEventListener("keydown", addListener, true);
+  }
+
+  function addListener(e) {
+    if (e.key !== "Shift") {
+      // audio.play();
+      highlightNextLetter(e.key);
+    }
   }
 
   function addLettersToLineDiv(lineDiv, line) {
+    smallButtonGroup.classList.remove("hidden");
     for (let i = 0; i < line.length; i++) {
       let newDiv = createLetterDivs(line[i], i < 1 ? true : false);
       lineDiv.appendChild(newDiv);
@@ -110,7 +132,6 @@ import { snippetArray } from "./codeSnippets.js";
   }
 
   function highlightFirstLetter() {
-    console.log(state.pairs);
     const firstLetter = lettersContainer.childNodes[0].childNodes[2];
     firstLetter.classList.add("active");
   }
@@ -124,9 +145,13 @@ import { snippetArray } from "./codeSnippets.js";
 
     currentLetter.classList.remove("active");
 
+    // this is checking if we are the end of the line
     if (currentCharIndex > lineChars[currentLine] - 1) {
+      // checking if this is the final character in the code snippet
       if (currentLine === lettersContainer.childNodes.length - 1) {
-        return reset();
+        console.log(state.correctlyTyped, state.total);
+        showStats();
+        // return reset();
       }
       state.currentCharIndex = 2;
       state.currentLine++;
@@ -141,6 +166,18 @@ import { snippetArray } from "./codeSnippets.js";
     determineIfKeysMatch(keyPress, currentLetter);
   }
 
+  function showStats() {
+    state.inSesssion = false;
+    smallButtonGroup.classList.add("hidden");
+    stats.classList.remove("hidden");
+    document.querySelector(".percentage").innerText = "Y";
+    console.log("state session", state.inSession);
+    while (!state.inSession) {
+      console.log("not triggered");
+      reset();
+    }
+  }
+
   function reset() {
     const allNodes = lettersContainer.getElementsByTagName("*");
     for (let i = 0; i < allNodes.length; i++) {
@@ -150,8 +187,21 @@ import { snippetArray } from "./codeSnippets.js";
     state.currentSymbol = 0;
     state.currentCharIndex = 1;
     state.currentLine = 0;
+    state.correctlyTyped = 0;
+    state.total = 0;
     highlightFirstLetter();
     populatePairs(state.string);
+  }
+
+  function softReset() {
+    const allNodes = lettersContainer.getElementsByTagName("*");
+    for (let i = 0; i < allNodes.length; i++) {
+      allNodes[i].classList.remove("correct");
+      allNodes[i].classList.remove("incorrect");
+    }
+    state.currentSymbol = 0;
+    state.currentCharIndex = 1;
+    state.currentLine = 0;
   }
 
   function checkForSymbolToSkip() {
@@ -169,11 +219,16 @@ import { snippetArray } from "./codeSnippets.js";
   }
 
   function determineIfKeysMatch(keyPress, currentLetter) {
-    if (currentLetter.innerText === keyPress) {
+    if (currentLetter.innerText === "") {
+      wordDiv.innerText = "Correct!";
+    } else if (currentLetter.innerText === keyPress) {
+      state.total += 1;
+      state.correctlyTyped += 1;
       symbolCheck(currentLetter, "correct");
       wordDiv.innerText = "Correct!";
       lightUpTypedLetter("correct", currentLetter);
     } else {
+      state.total += 1;
       symbolCheck(currentLetter, "incorrect");
       wordDiv.innerText = "Incorrect!";
       lightUpTypedLetter("incorrect", currentLetter);
@@ -229,6 +284,7 @@ import { snippetArray } from "./codeSnippets.js";
   }
 
   function lightUpPair() {
+    state.correctlyTyped += 1;
     const { pairs, currentSymbol, indexesToSkip } = state;
     let allNodes = lettersContainer.getElementsByTagName("*");
     state.indexesToSkip.push(
@@ -247,12 +303,51 @@ import { snippetArray } from "./codeSnippets.js";
   demoButton.addEventListener("click", () => {
     buttonGroup.classList.add("hidden");
     displayTypeableCode(
-      snippetArray[Math.floor(Math.random() * Math.floor(3))]
+      // snippetArray[Math.floor(Math.random() * Math.floor(3))]
+      snippetArray[3]
     );
   });
 
   yourCodeButton.addEventListener("click", () => {
     buttonGroup.classList.add("hidden");
     form.classList.remove("hidden");
+    form.addEventListener("submit", submitForm);
   });
-})();
+
+  resetButton.addEventListener("click", () => {
+    const line = lettersContainer.childNodes[state.currentLine];
+    const currentLetter = line.childNodes[state.currentCharIndex + 1];
+    currentLetter.classList.remove("active");
+    reset();
+  });
+
+  (function removingListener() {
+    console.log("removing keydown listener....");
+    document.removeEventListener("keydown", addListener, true);
+    stats.classList.add("hidden");
+  })();
+
+  lettersContainer.classList.remove("hidden");
+}
+
+run();
+
+homeButton.addEventListener("click", () => {
+  buttonGroup.classList.remove("hidden");
+  lettersContainer.classList.add("hidden");
+  smallButtonGroup.classList.add("hidden");
+
+  for (let i = 0; i < lettersContainer.childNodes.length; i++) {
+    while (lettersContainer.childNodes[i].firstChild) {
+      lettersContainer.childNodes[i].removeChild(
+        lettersContainer.childNodes[i].firstChild
+      );
+    }
+  }
+
+  while (lettersContainer.firstChild) {
+    lettersContainer.removeChild(lettersContainer.firstChild);
+  }
+
+  run();
+});

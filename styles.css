@@ -11,7 +11,15 @@ form {
 }
 
 .buttons {
+  margin-bottom: 1rem;
   display: flex;
+  width: 30%;
+  justify-content: space-between;
+  align-content: center;
+}
+.buttons-small {
+  display: flex;
+  height: 4rem;
   width: 30%;
   justify-content: space-between;
   align-content: center;
@@ -27,7 +35,22 @@ form {
   font-size: xx-large;
 }
 
-.btn-start:hover {
+.btn-reset,
+.btn-home {
+  margin-bottom: 1rem;
+  align-self: flex-end;
+  background-color: #0c1616;
+  color: aliceblue;
+  height: 2rem;
+  width: 5rem;
+  outline: 3px solid;
+  font-family: monospace;
+  font-size: large;
+}
+
+.btn-start:hover,
+.btn-reset:hover,
+.btn-home:hover {
   background-color: aliceblue;
   color: #0c1616;
 }
@@ -65,12 +88,14 @@ h1 {
   align-self: flex-start;
   display: grid;
   grid-template-columns: repeat(85, 1fr);
+  height: 2.7rem;
 }
 .feedback {
   color: aliceblue;
 }
 
 .letters-container {
+  background-color: #0c1616;
   width: 87vw;
   display: grid;
   grid-template-columns: 1fr;
@@ -82,7 +107,8 @@ h1 {
   color: #3a575f;
   text-align: center;
   font-family: monospace;
-  font-size: 2.1rem;
+  font-size: 2.4rem;
+  height: 2.6rem;
   /* width: 0rem; */
 }
 
@@ -120,3 +146,7 @@ h1 {
   grid-template-columns: repeat(70, 1fr);
   row-gap: 0.75rem;
 } */
+
+.percentage {
+  color: aliceblue;
+}
