@@ -8,23 +8,34 @@
     <link rel="shortcut icon" href="fav-icon.png" />
   </head>
   <body>
-    <h1>Type, yo</h1>
+    <h1>Code Typing</h1>
     <div class="buttons">
       <button class="btn-start demo">Demo Code</button>
       <button class="btn-start your">Your Code</button>
+    </div>
+
+    <main class="letters-container">
+      <div class="line"></div>
+    </main>
+    <div class="stats hidden">
+      <h3 class="percentage"></h3>
+      <button class="btn-reset">Start Over</button>
+      <button class="btn-home">Main Menu</button>
+    </div>
+    <div class="buttons-small hidden">
+      <button class="btn-reset">Reset</button>
+      <h2 class="feedback"></h2>
+      <button class="btn-home">Home</button>
     </div>
     <form id="code-form" class="hidden">
       <textarea
         name="code-input"
         class="code-input"
-        style="width: 30vw; height: 30vh;"
+        style="width: 30vw; height: 30vh"
         placeholder="Enter the Javascript you want formatted here!"
       ></textarea>
       <button id="code-submit">Format your code!</button>
     </form>
-    <main class="letters-container"></main>
-
-    <h2 class="feedback"></h2>
 
     <audio data-key="01" src="sounds/tink.wav"></audio>
     <script type="module" src="js/index.js"></script>
