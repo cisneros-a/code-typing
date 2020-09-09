@@ -1,8 +1,8 @@
 export const snippetArray = [
   `1
-let removeDuplicates = nums => {
+let removeDups = nums => {
 2
-    for (let i = 0; i < nums.length; i++) {
+    for (let i of nums) {
 3
         if (nums[i] === nums[i + 1]) {
 4
