@@ -81,6 +81,7 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+
     function addListener(e) {
       if (e.key !== "Shift") {
         // audio.play();
