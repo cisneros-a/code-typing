@@ -1,4 +1,5 @@
 export const functions = {
+  // this finds the node within the context of all nodes in our display
   determineCorrectNode: function (num, lines) {
     let charsPerLineArray = [];
     for (let i = 0; i < lines.length; i++) {
@@ -14,6 +15,7 @@ export const functions = {
     }
   },
 
+  // this function finds a node's location in the context of each line of typeable code
   findNodesLineAndIndex: function (num, lines) {
     let totalNodes = 0;
     let nodesBeforeCurrentLine = 0;
@@ -30,6 +32,7 @@ export const functions = {
     return totalNodes;
   },
 
+  //this function finds all the bracket pairs in the code snippet
   findMatchingPairs: function (codeString, lettersContainer) {
     let openings = {};
     for (let i = 0; i < codeString.length; i++) {
@@ -55,6 +58,8 @@ export const functions = {
     return pairs;
   },
 
+  // this function ensures that we skip the correctly typed closing bracket
+  //in the proper order
   sortIndexesToSkip: function (indexesToSkip) {
     let sortedIndexes = indexesToSkip.sort((a, b) => {
       if (a.line === b.line) {
